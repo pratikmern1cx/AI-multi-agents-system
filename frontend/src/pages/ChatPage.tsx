@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useChatStore } from '../store/chatStore';
 import { useAuthStore } from '../store/authStore';
-import { Send, Plus, MessageSquare, LogOut, LayoutDashboard, Sparkles } from 'lucide-react';
+import { Send, Plus, MessageSquare, LogOut, LayoutDashboard, Sparkles, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Add CSS animations
@@ -25,6 +25,7 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
 
   const {
     conversations,
@@ -34,6 +35,7 @@ export default function ChatPage() {
     createConversation,
     selectConversation,
     sendMessage,
+    deleteConversation,
   } = useChatStore();
 
   const { user, logout } = useAuthStore();
@@ -56,6 +58,12 @@ export default function ChatPage() {
 
   const handleNewChat = async () => {
     await createConversation('New Conversation');
+  };
+
+  const handleDeleteConversation = async () => {
+    if (!deleteTarget) return;
+    await deleteConversation(deleteTarget.id);
+    setDeleteTarget(null);
   };
 
   const formatMessage = (content: string) => {
@@ -128,10 +136,23 @@ export default function ChatPage() {
                 ...(currentConversation?.id === conv.id ? styles.conversationItemActive : {}),
               }}
             >
-              <MessageSquare size={16} />
-              <span style={styles.conversationTitle}>
-                {conv.title || 'New Conversation'}
-              </span>
+              <div style={styles.conversationItemMain}>
+                <MessageSquare size={16} />
+                <span style={styles.conversationTitle}>
+                  {conv.title || 'New Conversation'}
+                </span>
+              </div>
+              <button
+                type="button"
+                aria-label="Delete conversation"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setDeleteTarget({ id: conv.id, title: conv.title || 'New Conversation' });
+                }}
+                style={styles.deleteButton}
+              >
+                <Trash2 size={14} />
+              </button>
             </div>
           ))}
         </div>
@@ -260,6 +281,33 @@ export default function ChatPage() {
           </div>
         )}
       </div>
+
+      {deleteTarget && (
+        <div style={styles.modalOverlay} onClick={() => setDeleteTarget(null)}>
+          <div style={styles.modal} onClick={(event) => event.stopPropagation()}>
+            <div style={styles.modalTitle}>Delete conversation?</div>
+            <div style={styles.modalText}>
+              This will remove "{deleteTarget.title}" and all its messages.
+            </div>
+            <div style={styles.modalActions}>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                style={styles.modalCancel}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConversation}
+                style={styles.modalDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -319,10 +367,18 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: '10px',
     marginBottom: '2px',
     transition: 'background 0.2s',
     color: '#a0a0a0',
+  },
+  conversationItemMain: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    minWidth: 0,
+    flex: 1,
   },
   conversationItemActive: {
     background: '#2a2a2a',
@@ -333,6 +389,18 @@ const styles: Record<string, React.CSSProperties> = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+  },
+  deleteButton: {
+    padding: '6px',
+    background: 'transparent',
+    border: '1px solid #2a2a2a',
+    borderRadius: '6px',
+    color: '#a0a0a0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
   },
   sidebarFooter: {
     padding: '12px',
@@ -536,5 +604,56 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     border: 'none',
     transition: 'all 0.2s',
+  },
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(0, 0, 0, 0.6)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 50,
+  },
+  modal: {
+    background: '#171717',
+    border: '1px solid #2a2a2a',
+    borderRadius: '14px',
+    padding: '20px',
+    width: '360px',
+    maxWidth: '90vw',
+    color: '#e0e0e0',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  modalTitle: {
+    fontSize: '16px',
+    fontWeight: '600',
+  },
+  modalText: {
+    fontSize: '14px',
+    color: '#b0b0b0',
+    lineHeight: '1.5',
+  },
+  modalActions: {
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'flex-end',
+  },
+  modalCancel: {
+    padding: '8px 14px',
+    background: 'transparent',
+    border: '1px solid #2a2a2a',
+    borderRadius: '8px',
+    color: '#c0c0c0',
+    cursor: 'pointer',
+  },
+  modalDelete: {
+    padding: '8px 14px',
+    background: '#ef4444',
+    border: 'none',
+    borderRadius: '8px',
+    color: 'white',
+    cursor: 'pointer',
   },
 };

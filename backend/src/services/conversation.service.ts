@@ -72,6 +72,15 @@ export class ConversationService {
       messageId: userMessage?.id,
     });
 
+    // If this is a new conversation, set a dynamic title from the first user message
+    if (!conversation.title || conversation.title === 'New Conversation') {
+      const title = this.deriveTitle(content);
+      await this.conversationRepo.update(conversationId, {
+        title,
+        updated_at: new Date(),
+      } as any);
+    }
+
     // Process with orchestrator
     const context: AgentContext = {
       conversationId,
@@ -111,6 +120,14 @@ export class ConversationService {
         tasks: result.tasks,
       },
     };
+  }
+
+  private deriveTitle(content: string) {
+    const cleaned = content.replace(/\s+/g, ' ').trim();
+    if (!cleaned) return 'New Conversation';
+    const maxLength = 48;
+    if (cleaned.length <= maxLength) return cleaned;
+    return `${cleaned.slice(0, maxLength).trimEnd()}...`;
   }
 
   async deleteConversation(conversationId: string, userId: string) {

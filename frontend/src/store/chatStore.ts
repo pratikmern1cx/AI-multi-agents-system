@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { chatService, Conversation } from '../services/chat.service';
 
+const deriveTitle = (content: string) => {
+  const cleaned = content.replace(/\s+/g, ' ').trim();
+  if (!cleaned) return 'New Conversation';
+  const maxLength = 48;
+  if (cleaned.length <= maxLength) return cleaned;
+  return `${cleaned.slice(0, maxLength).trimEnd()}...`;
+};
+
 interface ChatState {
   conversations: Conversation[];
   currentConversation: Conversation | null;
@@ -58,6 +66,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sendMessage: async (content) => {
     const { currentConversation } = get();
     if (!currentConversation) return;
+    const shouldUpdateTitle =
+      !currentConversation.title || currentConversation.title === 'New Conversation';
+    const newTitle = shouldUpdateTitle ? deriveTitle(content) : undefined;
 
     set({ isSending: true, error: null });
     try {
@@ -70,6 +81,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         currentConversation: state.currentConversation
           ? {
               ...state.currentConversation,
+              title: newTitle ?? state.currentConversation.title,
               messages: [
                 ...(state.currentConversation.messages || []),
                 userMessage,
@@ -77,6 +89,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
               ],
             }
           : null,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === currentConversation.id
+            ? { ...conversation, title: newTitle ?? conversation.title }
+            : conversation
+        ),
         isSending: false,
       }));
     } catch (error: any) {
