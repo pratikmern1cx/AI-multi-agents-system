@@ -18,8 +18,8 @@ export class WebSocketManager {
   }
 
   async initialize(server: FastifyInstance) {
-    server.get('/ws', { websocket: true }, (connection, req) => {
-      this.handleConnection(connection.socket, req);
+    server.get('/ws', { websocket: true }, (connection: any, req) => {
+      this.handleConnection(connection.socket || connection, req);
     });
 
     logger.info('[WebSocketManager] WebSocket server initialized');

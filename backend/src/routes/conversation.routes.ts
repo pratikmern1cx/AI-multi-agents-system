@@ -13,20 +13,20 @@ export async function conversationRoutes(server: FastifyInstance) {
     {
       preHandler: [validateBody(createConversationSchema)],
     },
-    async (request, reply) => {
+    async (request: any, reply: any) => {
       const conversationService = (server as any).conversationService;
       const controller = new ConversationController(conversationService);
       return controller.create(request, reply);
     }
   );
 
-  server.get('/', async (request, reply) => {
+  server.get('/', async (request: any, reply: any) => {
     const conversationService = (server as any).conversationService;
     const controller = new ConversationController(conversationService);
     return controller.list(request, reply);
   });
 
-  server.get('/:id', async (request, reply) => {
+  server.get('/:id', async (request: any, reply: any) => {
     const conversationService = (server as any).conversationService;
     const controller = new ConversationController(conversationService);
     return controller.get(request, reply);
@@ -37,14 +37,14 @@ export async function conversationRoutes(server: FastifyInstance) {
     {
       preHandler: [validateBody(sendMessageSchema)],
     },
-    async (request, reply) => {
+    async (request: any, reply: any) => {
       const conversationService = (server as any).conversationService;
       const controller = new ConversationController(conversationService);
       return controller.sendMessage(request, reply);
     }
   );
 
-  server.delete('/:id', async (request, reply) => {
+  server.delete('/:id', async (request: any, reply: any) => {
     const conversationService = (server as any).conversationService;
     const controller = new ConversationController(conversationService);
     return controller.delete(request, reply);

@@ -86,7 +86,7 @@ export class QueueManager {
 
   private createQueue(config: QueueConfig) {
     const queue = new Queue(config.name, {
-      connection: redis,
+      connection: { host: process.env.REDIS_HOST || 'localhost', port: Number(process.env.REDIS_PORT) || 6379, password: process.env.REDIS_PASSWORD },
       defaultJobOptions: config.defaultJobOptions,
     });
 
@@ -94,7 +94,7 @@ export class QueueManager {
 
     // Setup queue events
     const queueEvents = new QueueEvents(config.name, {
-      connection: redis,
+      connection: { host: process.env.REDIS_HOST || 'localhost', port: Number(process.env.REDIS_PORT) || 6379, password: process.env.REDIS_PASSWORD },
     });
 
     queueEvents.on('completed', ({ jobId }) => {
@@ -122,7 +122,7 @@ export class QueueManager {
     concurrency: number = 5
   ) {
     const worker = new Worker(queueName, processor, {
-      connection: redis,
+      connection: { host: process.env.REDIS_HOST || 'localhost', port: Number(process.env.REDIS_PORT) || 6379, password: process.env.REDIS_PASSWORD },
       concurrency,
     });
 

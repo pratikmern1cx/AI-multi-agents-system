@@ -12,7 +12,7 @@ export async function authRoutes(server: FastifyInstance) {
     {
       preHandler: [validateBody(registerSchema)],
     },
-    controller.register.bind(controller)
+    (req: any, reply: any) => controller.register(req, reply)
   );
 
   server.post(
@@ -20,7 +20,7 @@ export async function authRoutes(server: FastifyInstance) {
     {
       preHandler: [validateBody(loginSchema)],
     },
-    controller.login.bind(controller)
+    (req: any, reply: any) => controller.login(req, reply)
   );
 
   server.get(

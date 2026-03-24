@@ -18,10 +18,7 @@ export const analyticsController = {
       const userId = (request.user as any).id;
       const { startDate, endDate } = request.query;
 
-      const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const end = endDate ? new Date(endDate) : new Date();
-
-      const overview = await analyticsService.getAnalyticsOverview(userId, start, end);
+      const overview = await analyticsService.getDashboardAnalytics(userId, '30d');
 
       return reply.code(200).send({
         success: true,
@@ -45,9 +42,14 @@ export const analyticsController = {
       const { startDate, endDate } = request.query;
 
       const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const end = endDate ? new Date(endDate) : new Date();
 
-      const metrics = await analyticsService.getTaskMetrics(userId, start, end);
+      const fullData = await analyticsService.getDashboardAnalytics(userId, '30d');
+      const metrics = { 
+        totalTasks: fullData.totalTasks, 
+        completedTasks: fullData.completedTasks, 
+        failedTasks: fullData.failedTasks, 
+        averageExecutionTime: fullData.averageExecutionTime 
+      };
 
       return reply.code(200).send({
         success: true,
@@ -71,9 +73,9 @@ export const analyticsController = {
       const { startDate, endDate } = request.query;
 
       const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const end = endDate ? new Date(endDate) : new Date();
 
-      const usage = await analyticsService.getAgentUsage(userId, start, end);
+      const fullData = await analyticsService.getDashboardAnalytics(userId, '30d');
+      const usage = fullData.agentUsage;
 
       return reply.code(200).send({
         success: true,
@@ -97,9 +99,9 @@ export const analyticsController = {
       const { startDate, endDate } = request.query;
 
       const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const end = endDate ? new Date(endDate) : new Date();
-
-      const usage = await analyticsService.getToolUsage(userId, start, end);
+      
+      const fullData = await analyticsService.getDashboardAnalytics(userId, '30d');
+      const usage = fullData.toolUsage;
 
       return reply.code(200).send({
         success: true,
@@ -123,9 +125,9 @@ export const analyticsController = {
       const { startDate, endDate } = request.query;
 
       const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const end = endDate ? new Date(endDate) : new Date();
 
-      const costs = await analyticsService.getCostTracking(userId, start, end);
+      const fullData = await analyticsService.getDashboardAnalytics(userId, '30d');
+      const costs = fullData.costMetrics;
 
       return reply.code(200).send({
         success: true,
@@ -149,9 +151,9 @@ export const analyticsController = {
       const { startDate, endDate } = request.query;
 
       const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const end = endDate ? new Date(endDate) : new Date();
 
-      const metrics = await analyticsService.getPerformanceMetrics(userId, start, end);
+      const fullData = await analyticsService.getDashboardAnalytics(userId, '30d');
+      const metrics = fullData.performanceMetrics;
 
       return reply.code(200).send({
         success: true,
