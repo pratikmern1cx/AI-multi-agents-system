@@ -18,7 +18,7 @@ interface TaskState {
   updateTaskStatus: (id: string, status: string, data?: any) => void;
 }
 
-export const useTaskStore = create<TaskState>((set, get) => ({
+export const useTaskStore = create<TaskState>((set) => ({
   tasks: [],
   isLoading: false,
   error: null,

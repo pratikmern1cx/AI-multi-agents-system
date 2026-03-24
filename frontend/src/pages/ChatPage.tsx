@@ -29,7 +29,6 @@ export default function ChatPage() {
   const {
     conversations,
     currentConversation,
-    isLoading,
     isSending,
     loadConversations,
     createConversation,

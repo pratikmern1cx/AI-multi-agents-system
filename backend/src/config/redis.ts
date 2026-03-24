@@ -3,7 +3,11 @@ import { config } from './index.js';
 import { logger } from '../utils/logger.js';
 
 const redisOptions = config.redis.url
-  ? { url: config.redis.url, password: config.redis.password }
+  ? {
+      url: config.redis.url,
+      password: config.redis.password,
+      socket: config.redis.url.startsWith('rediss://') ? { tls: true } : undefined,
+    }
   : {
       socket: {
         host: config.redis.host,
@@ -38,7 +42,7 @@ export function getBullMQConnection() {
   };
 }
 
-redis.on('error', (err) => logger.error('Redis Client Error', err));
+redis.on('error', (err) => logger.error({ err, code: (err as any)?.code }, 'Redis Client Error'));
 redis.on('connect', () => logger.info('Redis connected'));
 
 export async function connectRedis() {
