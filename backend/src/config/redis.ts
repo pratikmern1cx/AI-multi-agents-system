@@ -16,7 +16,19 @@ export const redis = createClient(redisOptions);
 
 export function getBullMQConnection() {
   if (config.redis.url) {
-    return config.redis.url;
+    const url = new URL(config.redis.url);
+    const port = url.port ? Number(url.port) : 6379;
+    const password = url.password || config.redis.password;
+    const username = url.username || undefined;
+    const isTls = url.protocol === 'rediss:';
+
+    return {
+      host: url.hostname,
+      port,
+      password,
+      username,
+      tls: isTls ? {} : undefined,
+    };
   }
 
   return {
