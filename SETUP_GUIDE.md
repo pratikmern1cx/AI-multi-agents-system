@@ -75,6 +75,8 @@ SUPABASE_ANON_KEY=your-anon-key-here
 SUPABASE_SERVICE_KEY=your-service-role-key-here
 
 # Redis
+# If REDIS_URL is set, it overrides REDIS_HOST/REDIS_PORT/REDIS_PASSWORD
+REDIS_URL=
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=

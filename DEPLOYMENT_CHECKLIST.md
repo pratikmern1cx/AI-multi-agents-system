@@ -144,6 +144,8 @@ SUPABASE_URL=https://your-prod-project.supabase.co
 SUPABASE_ANON_KEY=prod-anon-key
 SUPABASE_SERVICE_KEY=prod-service-key
 
+# If REDIS_URL is set, it overrides REDIS_HOST/REDIS_PORT/REDIS_PASSWORD
+REDIS_URL=redis://:strong-password@your-redis-host:6379
 REDIS_HOST=your-redis-host
 REDIS_PORT=6379
 REDIS_PASSWORD=strong-password

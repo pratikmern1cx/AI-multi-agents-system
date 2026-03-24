@@ -1,5 +1,5 @@
 import { Queue, Worker, Job, QueueEvents } from 'bullmq';
-import { redis } from '../config/redis.js';
+import { getBullMQConnection } from '../config/redis.js';
 import { logger } from '../utils/logger.js';
 
 export interface QueueConfig {
@@ -85,8 +85,9 @@ export class QueueManager {
   }
 
   private createQueue(config: QueueConfig) {
+    const connection = getBullMQConnection();
     const queue = new Queue(config.name, {
-      connection: { host: process.env.REDIS_HOST || 'localhost', port: Number(process.env.REDIS_PORT) || 6379, password: process.env.REDIS_PASSWORD },
+      connection,
       defaultJobOptions: config.defaultJobOptions,
     });
 
@@ -94,7 +95,7 @@ export class QueueManager {
 
     // Setup queue events
     const queueEvents = new QueueEvents(config.name, {
-      connection: { host: process.env.REDIS_HOST || 'localhost', port: Number(process.env.REDIS_PORT) || 6379, password: process.env.REDIS_PASSWORD },
+      connection,
     });
 
     queueEvents.on('completed', ({ jobId }) => {
@@ -122,7 +123,7 @@ export class QueueManager {
     concurrency: number = 5
   ) {
     const worker = new Worker(queueName, processor, {
-      connection: { host: process.env.REDIS_HOST || 'localhost', port: Number(process.env.REDIS_PORT) || 6379, password: process.env.REDIS_PASSWORD },
+      connection: getBullMQConnection(),
       concurrency,
     });
 
